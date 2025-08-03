@@ -3,9 +3,12 @@
 Основной файл Telegram-бота для турниров Brawl Stars
 """
 
+import uvicorn
 import asyncio
 import logging
 import random
+from fastapi import FastAPI
+from threading import Thread
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
@@ -15,7 +18,7 @@ from telegram import (
 )
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler,
-    PollAnswerHandler, ContextTypes, MessageHandler, filters
+    PollAnswerHandler, ContextTypes, MessageHandler, filters, ApplicationBuilder
 )
 
 from config import (
@@ -39,6 +42,15 @@ active_tournaments = {}  # chat_id: tournament_data
 active_polls = {}  # poll_id: poll_data
 user_participation_tracker = {}  # chat_id: {user_id: bool} - отслеживание участия
 match_scores = {}  # match_id: {'team1_wins': 0, 'team2_wins': 0} - счёт матчей
+
+app = FastAPI()
+
+@app.get("/healthz")
+async def health_check():
+    return {"status": "ok"}
+
+def run_web():
+    uvicorn.run(app, host="0.0.0.0", port=8080)
 
 # Вспомогательные функции для работы с Markdown
 def escape_markdown_v2(text):
@@ -2556,7 +2568,7 @@ async def setup_bot_commands(application):
     await application.bot.set_my_commands(commands)
 
 
-def main():
+async def main():
     """Главная функция запуска бота"""
     # Создание приложения
     application = Application.builder().token(BOT_TOKEN).build()
@@ -2612,6 +2624,7 @@ def main():
     print(f"   • Роль 'owner' зарезервирована для пользователя ID: {OWNER_ID}")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
+Thread(target=run_web, daemon=True).start()
 
 if __name__ == '__main__':
-    main()
+   asyncio.run(main())

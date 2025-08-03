@@ -2568,7 +2568,7 @@ async def setup_bot_commands(application):
     await application.bot.set_my_commands(commands)
 
 
-async def main():
+def main():
     """Главная функция запуска бота"""
     # Создание приложения
     application = Application.builder().token(BOT_TOKEN).build()

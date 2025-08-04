@@ -188,11 +188,11 @@ class ModerationManager:
         """Команда мута пользователя"""
         # Проверяем что команда используется в группе
         if update.effective_chat.type == 'private':
-            await update.message.reply_text("❌ Эта команда доступна только в группах и каналах!")
+            await update.message.reply_text("🚫 Команды модерации работают только в группах")
             return
             
         if not await self.check_moderator_permissions(update, context):
-            await update.message.reply_text("❌ У вас нет прав для использования этой команды!")
+            await update.message.reply_text("❌ Недостаточно прав")
             return
 
         # Парсинг аргументов команды
@@ -218,7 +218,7 @@ class ModerationManager:
             if update.message.reply_to_message:
                 target_user = update.message.reply_to_message.from_user
             else:
-                await update.message.reply_text("❌ Ответьте на сообщение пользователя")
+                await update.message.reply_text("❌ Ответьте на сообщение")
                 return
 
             # Собираем причину и время
@@ -237,7 +237,7 @@ class ModerationManager:
             # Проверяем, что не мутим администратора
             target_member = await context.bot.get_chat_member(update.effective_chat.id, target_user.id)
             if target_member.status in [ChatMember.ADMINISTRATOR, ChatMember.OWNER]:
-                await update.message.reply_text("❌ Нельзя замутить администратора!")
+                await update.message.reply_text("❌ Нельзя замутить админа")
                 return
 
             # Ограничиваем права пользователя
@@ -281,11 +281,9 @@ class ModerationManager:
             target_name = target_user.first_name
             
             message_text = (
-                f"🔇 <b>Пользователь замучен</b>\n\n"
-                f"👤 <b>Пользователь:</b> {target_name}\n"
-                f"👮‍♂️ <b>Модератор:</b> {moderator_name}\n"
-                f"⏱️ <b>Время:</b> {time_text}\n"
-                f"📝 <b>Причина:</b> {reason}"
+                f"🔇 <b>{target_name}</b> замучен {time_text}\n"
+                f"📝 <b>Причина:</b> {reason}\n"
+                f"👮‍♂️ <b>Модератор:</b> {moderator_name}"
             )
             
             await update.message.reply_text(message_text, parse_mode='HTML')
@@ -294,17 +292,17 @@ class ModerationManager:
             await update.message.reply_text(f"❌ Ошибка: {e}")
         except Exception as e:
             logger.error(f"Error in mute command: {e}")
-            await update.message.reply_text("❌ Произошла ошибка при выполнении команды")
+            await update.message.reply_text("❌ Ошибка выполнения")
 
     async def ban_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Команда бана пользователя"""
         # Проверяем что команда используется в группе
         if update.effective_chat.type == 'private':
-            await update.message.reply_text("❌ Эта команда доступна только в группах и каналах!")
+            await update.message.reply_text("🚫 Команды модерации работают только в группах")
             return
             
         if not await self.check_moderator_permissions(update, context):
-            await update.message.reply_text("❌ У вас нет прав для использования этой команды!")
+            await update.message.reply_text("❌ Недостаточно прав")
             return
 
         args = context.args if hasattr(context, 'args') and context.args else []
@@ -318,7 +316,7 @@ class ModerationManager:
             if update.message.reply_to_message:
                 target_user = update.message.reply_to_message.from_user
             else:
-                await update.message.reply_text("❌ Ответьте на сообщение пользователя")
+                await update.message.reply_text("❌ Ответьте на сообщение")
                 return
 
             # Парсим причину и время
@@ -337,7 +335,7 @@ class ModerationManager:
             # Проверяем права целевого пользователя
             target_member = await context.bot.get_chat_member(update.effective_chat.id, target_user.id)
             if target_member.status in [ChatMember.ADMINISTRATOR, ChatMember.OWNER]:
-                await update.message.reply_text("❌ Нельзя забанить администратора!")
+                await update.message.reply_text("❌ Нельзя забанить админа")
                 return
 
             # Баним пользователя
@@ -370,11 +368,9 @@ class ModerationManager:
             target_name = target_user.first_name
             
             message_text = (
-                f"🔨 <b>Пользователь забанен</b>\n\n"
-                f"👤 <b>Пользователь:</b> {target_name}\n"
-                f"👮‍♂️ <b>Модератор:</b> {moderator_name}\n"
-                f"⏱️ <b>Время:</b> {time_text}\n"
-                f"📝 <b>Причина:</b> {reason}"
+                f"🔨 <b>{target_name}</b> забанен {time_text}\n"
+                f"📝 <b>Причина:</b> {reason}\n"
+                f"👮‍♂️ <b>Модератор:</b> {moderator_name}"
             )
             
             await update.message.reply_text(message_text, parse_mode='HTML')
@@ -383,17 +379,17 @@ class ModerationManager:
             await update.message.reply_text(f"❌ Ошибка: {e}")
         except Exception as e:
             logger.error(f"Error in ban command: {e}")
-            await update.message.reply_text("❌ Произошла ошибка при выполнении команды")
+            await update.message.reply_text("❌ Ошибка выполнения")
 
     async def kick_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Команда кика пользователя"""
         # Проверяем что команда используется в группе
         if update.effective_chat.type == 'private':
-            await update.message.reply_text("❌ Эта команда доступна только в группах и каналах!")
+            await update.message.reply_text("🚫 Команды модерации работают только в группах")
             return
             
         if not await self.check_moderator_permissions(update, context):
-            await update.message.reply_text("❌ У вас нет прав для использования этой команды!")
+            await update.message.reply_text("❌ Недостаточно прав")
             return
 
         args = context.args if hasattr(context, 'args') and context.args else []
@@ -408,13 +404,13 @@ class ModerationManager:
                 target_user = update.message.reply_to_message.from_user
                 reason = " ".join(args) or "Нарушение правил"
             else:
-                await update.message.reply_text("❌ Ответьте на сообщение пользователя")
+                await update.message.reply_text("❌ Ответьте на сообщение")
                 return
 
             # Проверяем права целевого пользователя
             target_member = await context.bot.get_chat_member(update.effective_chat.id, target_user.id)
             if target_member.status in [ChatMember.ADMINISTRATOR, ChatMember.OWNER]:
-                await update.message.reply_text("❌ Нельзя кикнуть администратора!")
+                await update.message.reply_text("❌ Нельзя кикнуть админа")
                 return
 
             # Кикаем пользователя (бан + разбан)
@@ -440,10 +436,9 @@ class ModerationManager:
             target_name = target_user.first_name
             
             message_text = (
-                f"👢 <b>Пользователь кикнут</b>\n\n"
-                f"👤 <b>Пользователь:</b> {target_name}\n"
-                f"👮‍♂️ <b>Модератор:</b> {moderator_name}\n"
-                f"📝 <b>Причина:</b> {reason}"
+                f"👢 <b>{target_name}</b> кикнут\n"
+                f"📝 <b>Причина:</b> {reason}\n"
+                f"👮‍♂️ <b>Модератор:</b> {moderator_name}"
             )
             
             await update.message.reply_text(message_text, parse_mode='HTML')
@@ -452,17 +447,17 @@ class ModerationManager:
             await update.message.reply_text(f"❌ Ошибка: {e}")
         except Exception as e:
             logger.error(f"Error in kick command: {e}")
-            await update.message.reply_text("❌ Произошла ошибка при выполнении команды")
+            await update.message.reply_text("❌ Ошибка выполнения")
 
     async def warn_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Команда предупреждения пользователю"""
         # Проверяем что команда используется в группе
         if update.effective_chat.type == 'private':
-            await update.message.reply_text("❌ Эта команда доступна только в группах и каналах!")
+            await update.message.reply_text("🚫 Команды модерации работают только в группах")
             return
             
         if not await self.check_moderator_permissions(update, context):
-            await update.message.reply_text("❌ У вас нет прав для использования этой команды!")
+            await update.message.reply_text("❌ Недостаточно прав")
             return
 
         args = context.args if hasattr(context, 'args') and context.args else []
@@ -477,13 +472,13 @@ class ModerationManager:
                 target_user = update.message.reply_to_message.from_user
                 reason = " ".join(args) or "Нарушение правил"
             else:
-                await update.message.reply_text("❌ Ответьте на сообщение пользователя")
+                await update.message.reply_text("❌ Ответьте на сообщение")
                 return
 
             # Проверяем права целевого пользователя
             target_member = await context.bot.get_chat_member(update.effective_chat.id, target_user.id)
             if target_member.status in [ChatMember.ADMINISTRATOR, ChatMember.OWNER]:
-                await update.message.reply_text("❌ Нельзя предупредить администратора!")
+                await update.message.reply_text("❌ Нельзя предупредить админа")
                 return
 
             # Добавляем предупреждение
@@ -497,11 +492,9 @@ class ModerationManager:
             target_name = target_user.first_name
             
             message_text = (
-                f"⚠️ <b>Предупреждение выдано</b>\n\n"
-                f"👤 <b>Пользователь:</b> {target_name}\n"
-                f"👮‍♂️ <b>Модератор:</b> {moderator_name}\n"
-                f"📊 <b>Предупреждений:</b> {warning_count}/3\n"
-                f"📝 <b>Причина:</b> {reason}"
+                f"⚠️ <b>{target_name}</b> получил предупреждение ({warning_count}/3)\n"
+                f"📝 <b>Причина:</b> {reason}\n"
+                f"👮‍♂️ <b>Модератор:</b> {moderator_name}"
             )
             
             await update.message.reply_text(message_text, parse_mode='HTML')
@@ -533,10 +526,7 @@ class ModerationManager:
                     "auto_mute", "3 предупреждения", "1d", until_date
                 )
 
-                auto_mute_text = (
-                    f"🔇 <b>АВТОМАТИЧЕСКИЙ МУТ</b>\n\n"
-                    f"👤 <b>{target_name}</b> получил мут на 1 день за 3 предупреждения!"
-                )
+                auto_mute_text = f"🔇 <b>{target_name}</b> получил мут на 1 день за 3 предупреждения!"
                 
                 await update.message.reply_text(auto_mute_text, parse_mode='HTML')
 
@@ -544,56 +534,27 @@ class ModerationManager:
             await update.message.reply_text(f"❌ Ошибка: {e}")
         except Exception as e:
             logger.error(f"Error in warn command: {e}")
-            await update.message.reply_text("❌ Произошла ошибка при выполнении команды")
+            await update.message.reply_text("❌ Ошибка выполнения")
 
     async def show_moderation_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Показ справки по командам модерации"""
+        """Показ справки по команд модерации"""
+        if update.effective_chat.type == 'private':
+            await update.message.reply_text("🚫 Команды модерации работают только в группах")
+            return
+            
         if not await self.check_moderator_permissions(update, context):
-            await update.message.reply_text("❌ У вас нет прав для использования этой команды!")
+            await update.message.reply_text("❌ Недостаточно прав")
             return
 
         help_text = """🛡️ <b>КОМАНДЫ МОДЕРАЦИИ</b>
 
-📌 <b>Доступные команды:</b>
+🔇 <b>Мут:</b> <code>/mute причина [время]</code>
+🔨 <b>Бан:</b> <code>/ban причина [время]</code>
+👢 <b>Кик:</b> <code>/kick причина</code>
+⚠️ <b>Предупреждение:</b> <code>/warn причина</code>
 
-🔇 <b>Заглушить пользователя:</b>
-<code>/mute причина [время]</code>
-<code>!мут причина [время]</code>
-
-🔨 <b>Забанить пользователя:</b>
-<code>/ban причина [время]</code>
-<code>!бан причина [время]</code>
-
-👢 <b>Кикнуть пользователя:</b>
-<code>/kick причина</code>
-<code>!кик причина</code>
-
-⚠️ <b>Выдать предупреждение:</b>
-<code>/warn причина</code>
-<code>!пред причина</code>
-
-📋 <b>Справка по командам:</b>
-<code>/moderation</code>
-
-━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🔧 <b>Как использовать:</b>
-1️⃣ Ответьте на сообщение нарушителя
-2️⃣ Используйте команду с причиной
-3️⃣ Для мута/бана можно указать время
-
-⏰ <b>Формат времени:</b>
-• <code>10m</code> - 10 минут
-• <code>2h</code> - 2 часа  
-• <code>1d</code> - 1 день
-
-📝 <b>Примеры:</b>
-<code>/mute спам 30m</code>
-<code>!мут реклама 1h</code>
-<code>/ban флуд 1d</code>
-<code>!пред мат</code>
-
-⚡ <b>Права:</b> только модераторы и администраторы"""
+💡 Время: <code>30m</code>, <code>2h</code>, <code>1d</code>
+📝 Ответьте на сообщение пользователя"""
 
         await update.message.reply_text(help_text, parse_mode='HTML')
 

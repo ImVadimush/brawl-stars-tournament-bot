@@ -5,7 +5,7 @@
 
 # Основные настройки бота
 BOT_TOKEN = "8499086430:AAH4fw-r61gLj2G0hmuZZgaCzxLbsevtkbE"  # Замените на ваш токен бота
-OWNER_ID = 1234567890  # Замените на ваш Telegram ID
+OWNER_ID = 6166054837  # Замените на ваш Telegram ID
 
 # Настройки базы данных
 DATABASE_PATH = "tournament_bot.db"

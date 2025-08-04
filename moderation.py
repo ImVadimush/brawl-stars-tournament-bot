@@ -503,18 +503,18 @@ class ModerationManager:
 
 📌 **Доступные команды:**
 
-**🔇 /mute** `@user <причина> <время>`
+**🔇 /mute или !мут** `@user <причина> <время>`
 Заглушить пользователя
 Время: `10m`, `2h`, `1d` и т.д.
 
-**🔨 /ban** `@user <причина> [время]`
+**🔨 /ban или !бан** `@user <причина> [время]`
 Забанить пользователя (с удалением сообщений)
 Время необязательно
 
-**👢 /kick** `@user <причина>`
+**👢 /kick или !кик** `@user <причина>`
 Кикнуть пользователя без бана
 
-**⚠️ /warn** `@user <причина>`
+**⚠️ /warn или !пред** `@user <причина>`
 Выдать предупреждение
 На 3-м варне - автомут на 1 день
 
@@ -528,8 +528,11 @@ class ModerationManager:
 
 **📝 Примеры:**
 • `/mute спам 30m` (в ответ на сообщение)
+• `!мут спам 30m` (в ответ на сообщение)
 • `/ban @username флуд 1d`
+• `!бан флуд 1d` (в ответ на сообщение)
 • `/warn реклама` (в ответ на сообщение)
+• `!пред реклама` (в ответ на сообщение)
 
 ⚡ **Права:** только модераторы и выше
         """
@@ -539,18 +542,46 @@ class ModerationManager:
     def get_command_handlers(self):
         """Получение обработчиков команд модерации"""
         return [
-            CommandHandler(['mute', 'мут'], self.mute_user),
-            CommandHandler(['ban', 'бан'], self.ban_user),
-            CommandHandler(['kick', 'кик'], self.kick_user),
-            CommandHandler(['warn', 'пред'], self.warn_user),
+            CommandHandler('mute', self.mute_user),
+            CommandHandler('ban', self.ban_user),
+            CommandHandler('kick', self.kick_user),
+            CommandHandler('warn', self.warn_user),
             CommandHandler('moderation', self.show_moderation_help),
         ]
 
+    async def handle_russian_commands(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Обработчик русских команд с префиксом !"""
+        if not update.message or not update.message.text:
+            return
+            
+        text = update.message.text.strip()
+        
+        # Проверяем русские команды
+        if text.startswith('!мут ') or text.startswith('!mute '):
+            # Парсим аргументы и вызываем соответствующую функцию
+            args = text.split()[1:]  # Убираем команду
+            context.args = args
+            await self.mute_user(update, context)
+        elif text.startswith('!бан ') or text.startswith('!ban '):
+            args = text.split()[1:]
+            context.args = args
+            await self.ban_user(update, context)
+        elif text.startswith('!кик ') or text.startswith('!kick '):
+            args = text.split()[1:]
+            context.args = args
+            await self.kick_user(update, context)
+        elif text.startswith('!пред ') or text.startswith('!warn '):
+            args = text.split()[1:]
+            context.args = args
+            await self.warn_user(update, context)
+
     def get_message_handlers(self):
         """Получение обработчиков сообщений для модерации"""
-        # Можно добавить фильтры для автомодерации
         return [
-            # MessageHandler(filters.TEXT & ~filters.COMMAND, self.auto_moderation)
+            MessageHandler(
+                filters.TEXT & filters.Regex(r'^!(мут|бан|кик|пред|mute|ban|kick|warn)\s'), 
+                self.handle_russian_commands
+            )
         ]
 
 # Функция для интеграции с основным ботом

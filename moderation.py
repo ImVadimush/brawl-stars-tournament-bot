@@ -18,6 +18,34 @@ from config import OWNER_ID
 
 logger = logging.getLogger(__name__)
 
+def escape_markdown_v2(text):
+    """Экранирование специальных символов Markdown v2"""
+    if not text:
+        return ""
+        
+    text = str(text)
+    # Символы, которые нужно экранировать в Markdown v2
+    escape_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+        
+    for char in escape_chars:
+        text = text.replace(char, f'\\{char}')
+        
+    return text
+
+def clean_markdown(text):
+    """Полное удаление Markdown символов"""
+    if not text:
+        return ""
+        
+    text = str(text)
+    # Удаляем все потенциально проблемные символы
+    problematic_chars = ['*', '_', '`', '[', ']', '(', ')', '~', '>', '#']
+        
+    for char in problematic_chars:
+        text = text.replace(char, '')
+        
+    return text
+
 class ModerationManager:
     def __init__(self, db: DatabaseManager):
         self.db = db
@@ -247,16 +275,19 @@ class ModerationManager:
             )
 
             # Отправляем уведомление
-            moderator_name = update.effective_user.first_name
-            target_name = target_user.first_name
+            moderator_name = clean_markdown(update.effective_user.first_name)
+            target_name = clean_markdown(target_user.first_name)
+            reason_clean = clean_markdown(reason)
             
-            await update.message.reply_text(
-                f"🔇 **Пользователь замучен**\n"
+            message_text = (
+                f"🔇 *Пользователь замучен*\n"
                 f"👤 Пользователь: {target_name}\n"
                 f"👮 Модератор: {moderator_name}\n"
                 f"⏱️ Время: {time_text}\n"
-                f"📝 Причина: {reason}"
+                f"📝 Причина: {reason_clean}"
             )
+            
+            await update.message.reply_text(message_text, parse_mode='Markdown')
 
         except BadRequest as e:
             await update.message.reply_text(f"❌ Ошибка: {e}")
@@ -334,16 +365,19 @@ class ModerationManager:
             )
 
             # Отправляем уведомление
-            moderator_name = update.effective_user.first_name
-            target_name = target_user.first_name
+            moderator_name = clean_markdown(update.effective_user.first_name)
+            target_name = clean_markdown(target_user.first_name)
+            reason_clean = clean_markdown(reason)
             
-            await update.message.reply_text(
-                f"🔨 **Пользователь забанен**\n"
+            message_text = (
+                f"🔨 *Пользователь забанен*\n"
                 f"👤 Пользователь: {target_name}\n"
                 f"👮 Модератор: {moderator_name}\n"
                 f"⏱️ Время: {time_text}\n"
-                f"📝 Причина: {reason}"
+                f"📝 Причина: {reason_clean}"
             )
+            
+            await update.message.reply_text(message_text, parse_mode='Markdown')
 
         except BadRequest as e:
             await update.message.reply_text(f"❌ Ошибка: {e}")
@@ -402,15 +436,18 @@ class ModerationManager:
             )
 
             # Отправляем уведомление
-            moderator_name = update.effective_user.first_name
-            target_name = target_user.first_name
+            moderator_name = clean_markdown(update.effective_user.first_name)
+            target_name = clean_markdown(target_user.first_name)
+            reason_clean = clean_markdown(reason)
             
-            await update.message.reply_text(
-                f"👢 **Пользователь кикнут**\n"
+            message_text = (
+                f"👢 *Пользователь кикнут*\n"
                 f"👤 Пользователь: {target_name}\n"
                 f"👮 Модератор: {moderator_name}\n"
-                f"📝 Причина: {reason}"
+                f"📝 Причина: {reason_clean}"
             )
+            
+            await update.message.reply_text(message_text, parse_mode='Markdown')
 
         except BadRequest as e:
             await update.message.reply_text(f"❌ Ошибка: {e}")
@@ -539,14 +576,6 @@ class ModerationManager:
 1. Ответьте на сообщение нарушителя
 2. Используйте команду с причиной
 3. Для мута/бана можно указать время
-
-**📝 Примеры:**
-• `/mute спам 30m` (в ответ на сообщение)
-• `!мут спам 30m` (в ответ на сообщение)
-• `/ban флуд 1d` (в ответ на сообщение)
-• `!бан флуд 1d` (в ответ на сообщение)
-• `/warn реклама` (в ответ на сообщение)
-• `!пред реклама` (в ответ на сообщение)
 
 ⚡ **Права:** только модераторы и выше
         """

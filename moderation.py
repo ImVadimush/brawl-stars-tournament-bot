@@ -158,17 +158,28 @@ class ModerationManager:
 
     async def mute_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Команда мута пользователя"""
+        # Проверяем что команда используется в группе
+        if update.effective_chat.type == 'private':
+            await update.message.reply_text("❌ Эта команда доступна только в группах и каналах!")
+            return
+            
         if not await self.check_moderator_permissions(update, context):
             await update.message.reply_text("❌ У вас нет прав для использования этой команды!")
             return
 
         # Парсинг аргументов команды
-        args = context.args
-        if len(args) < 2:
+        args = context.args if hasattr(context, 'args') and context.args else []
+        
+        # Если это русская команда !мут, парсим аргументы из текста
+        if update.message.text and (update.message.text.startswith('!мут') or update.message.text.startswith('!mute')):
+            args = update.message.text.split()[1:]  # Убираем саму команду
+        
+        if len(args) < 1:
             await update.message.reply_text(
-                "❌ Использование: `/mute @пользователь <причина> <время>`\n"
-                "Пример: `/mute @username спам 30m`\n"
-                "Время: m (минуты), h (часы), d (дни)"
+                "❌ Использование: `/mute <причина> [время]` или `!мут <причина> [время]`\n"
+                "Пример: `/mute спам 30m` или `!мут спам 30m`\n"
+                "Время: m (минуты), h (часы), d (дни)\n"
+                "Ответьте на сообщение пользователя"
             )
             return
 
@@ -176,18 +187,12 @@ class ModerationManager:
             # Получаем пользователя из упоминания
             if update.message.reply_to_message:
                 target_user = update.message.reply_to_message.from_user
-            elif args[0].startswith('@'):
-                username = args[0][1:]  # Убираем @
-                # Здесь нужно найти пользователя по username
-                # Пока используем простой подход
-                await update.message.reply_text("❌ Ответьте на сообщение пользователя или используйте команду в ответ на сообщение")
-                return
             else:
-                await update.message.reply_text("❌ Укажите пользователя через @ или ответьте на его сообщение")
+                await update.message.reply_text("❌ Ответьте на сообщение пользователя")
                 return
 
             # Собираем причину и время
-            reason_and_time = " ".join(args[1:])
+            reason_and_time = " ".join(args)
             parts = reason_and_time.rsplit(' ', 1)
             
             if len(parts) == 2 and self.parse_time_duration(parts[1]):
@@ -261,17 +266,20 @@ class ModerationManager:
 
     async def ban_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Команда бана пользователя"""
+        # Проверяем что команда используется в группе
+        if update.effective_chat.type == 'private':
+            await update.message.reply_text("❌ Эта команда доступна только в группах и каналах!")
+            return
+            
         if not await self.check_moderator_permissions(update, context):
             await update.message.reply_text("❌ У вас нет прав для использования этой команды!")
             return
 
-        args = context.args
-        if len(args) < 1:
-            await update.message.reply_text(
-                "❌ Использование: `/ban @пользователь <причина> [время]`\n"
-                "Пример: `/ban @username спам 1d`"
-            )
-            return
+        args = context.args if hasattr(context, 'args') and context.args else []
+        
+        # Если это русская команда !бан, парсим аргументы из текста
+        if update.message.text and (update.message.text.startswith('!бан') or update.message.text.startswith('!ban')):
+            args = update.message.text.split()[1:]
 
         try:
             # Получаем пользователя
@@ -282,7 +290,7 @@ class ModerationManager:
                 return
 
             # Парсим причину и время
-            reason_and_time = " ".join(args)
+            reason_and_time = " ".join(args) if args else "Нарушение правил"
             parts = reason_and_time.rsplit(' ', 1)
             
             if len(parts) == 2 and self.parse_time_duration(parts[1]):
@@ -345,17 +353,20 @@ class ModerationManager:
 
     async def kick_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Команда кика пользователя"""
+        # Проверяем что команда используется в группе
+        if update.effective_chat.type == 'private':
+            await update.message.reply_text("❌ Эта команда доступна только в группах и каналах!")
+            return
+            
         if not await self.check_moderator_permissions(update, context):
             await update.message.reply_text("❌ У вас нет прав для использования этой команды!")
             return
 
-        args = context.args
-        if not args:
-            await update.message.reply_text(
-                "❌ Использование: `/kick @пользователь <причина>`\n"
-                "Или ответьте на сообщение пользователя"
-            )
-            return
+        args = context.args if hasattr(context, 'args') and context.args else []
+        
+        # Если это русская команда !кик, парсим аргументы из текста
+        if update.message.text and (update.message.text.startswith('!кик') or update.message.text.startswith('!kick')):
+            args = update.message.text.split()[1:]
 
         try:
             # Получаем пользователя
@@ -409,17 +420,20 @@ class ModerationManager:
 
     async def warn_user(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Команда предупреждения пользователю"""
+        # Проверяем что команда используется в группе
+        if update.effective_chat.type == 'private':
+            await update.message.reply_text("❌ Эта команда доступна только в группах и каналах!")
+            return
+            
         if not await self.check_moderator_permissions(update, context):
             await update.message.reply_text("❌ У вас нет прав для использования этой команды!")
             return
 
-        args = context.args
-        if not args:
-            await update.message.reply_text(
-                "❌ Использование: `/warn @пользователь <причина>`\n"
-                "Или ответьте на сообщение пользователя"
-            )
-            return
+        args = context.args if hasattr(context, 'args') and context.args else []
+        
+        # Если это русская команда !пред, парсим аргументы из текста
+        if update.message.text and (update.message.text.startswith('!пред') or update.message.text.startswith('!warn')):
+            args = update.message.text.split()[1:]
 
         try:
             # Получаем пользователя
@@ -503,18 +517,18 @@ class ModerationManager:
 
 📌 **Доступные команды:**
 
-**🔇 /mute или !мут** `@user <причина> <время>`
+**🔇 /mute или !мут** `<причина> [время]`
 Заглушить пользователя
 Время: `10m`, `2h`, `1d` и т.д.
 
-**🔨 /ban или !бан** `@user <причина> [время]`
+**🔨 /ban или !бан** `<причина> [время]`
 Забанить пользователя (с удалением сообщений)
 Время необязательно
 
-**👢 /kick или !кик** `@user <причина>`
+**👢 /kick или !кик** `<причина>`
 Кикнуть пользователя без бана
 
-**⚠️ /warn или !пред** `@user <причина>`
+**⚠️ /warn или !пред** `<причина>`
 Выдать предупреждение
 На 3-м варне - автомут на 1 день
 
@@ -529,7 +543,7 @@ class ModerationManager:
 **📝 Примеры:**
 • `/mute спам 30m` (в ответ на сообщение)
 • `!мут спам 30m` (в ответ на сообщение)
-• `/ban @username флуд 1d`
+• `/ban флуд 1d` (в ответ на сообщение)
 • `!бан флуд 1d` (в ответ на сообщение)
 • `/warn реклама` (в ответ на сообщение)
 • `!пред реклама` (в ответ на сообщение)
@@ -540,48 +554,22 @@ class ModerationManager:
         await update.message.reply_text(help_text)
 
     def get_command_handlers(self):
-        """Получение обработчиков команд модерации"""
+        """Получение обработчиков команд модерации (только латинские команды)"""
         return [
-            CommandHandler('mute', self.mute_user),
-            CommandHandler('ban', self.ban_user),
-            CommandHandler('kick', self.kick_user),
-            CommandHandler('warn', self.warn_user),
-            CommandHandler('moderation', self.show_moderation_help),
+            CommandHandler('mute', self.mute_user, filters=filters.ChatType.GROUPS),
+            CommandHandler('ban', self.ban_user, filters=filters.ChatType.GROUPS),
+            CommandHandler('kick', self.kick_user, filters=filters.ChatType.GROUPS),
+            CommandHandler('warn', self.warn_user, filters=filters.ChatType.GROUPS),
+            CommandHandler('moderation', self.show_moderation_help, filters=filters.ChatType.GROUPS),
         ]
 
-    async def handle_russian_commands(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Обработчик русских команд с префиксом !"""
-        if not update.message or not update.message.text:
-            return
-            
-        text = update.message.text.strip()
-        
-        # Проверяем русские команды
-        if text.startswith('!мут ') or text.startswith('!mute '):
-            # Парсим аргументы и вызываем соответствующую функцию
-            args = text.split()[1:]  # Убираем команду
-            context.args = args
-            await self.mute_user(update, context)
-        elif text.startswith('!бан ') or text.startswith('!ban '):
-            args = text.split()[1:]
-            context.args = args
-            await self.ban_user(update, context)
-        elif text.startswith('!кик ') or text.startswith('!kick '):
-            args = text.split()[1:]
-            context.args = args
-            await self.kick_user(update, context)
-        elif text.startswith('!пред ') or text.startswith('!warn '):
-            args = text.split()[1:]
-            context.args = args
-            await self.warn_user(update, context)
-
     def get_message_handlers(self):
-        """Получение обработчиков сообщений для модерации"""
+        """Получение обработчиков сообщений для модерации (русские команды с !)"""
         return [
-            MessageHandler(
-                filters.TEXT & filters.Regex(r'^!(мут|бан|кик|пред|mute|ban|kick|warn)\s'), 
-                self.handle_russian_commands
-            )
+            MessageHandler(filters.TEXT & filters.Regex(r'^!мут\b') & filters.ChatType.GROUPS, self.mute_user),
+            MessageHandler(filters.TEXT & filters.Regex(r'^!бан\b') & filters.ChatType.GROUPS, self.ban_user),
+            MessageHandler(filters.TEXT & filters.Regex(r'^!кик\b') & filters.ChatType.GROUPS, self.kick_user),
+            MessageHandler(filters.TEXT & filters.Regex(r'^!пред\b') & filters.ChatType.GROUPS, self.warn_user),
         ]
 
 # Функция для интеграции с основным ботом
@@ -590,11 +578,11 @@ def setup_moderation(application, db: DatabaseManager):
     moderation = ModerationManager(db)
     moderation.init_moderation_tables()
     
-    # Добавляем обработчики команд
+    # Добавляем обработчики команд (только латинские)
     for handler in moderation.get_command_handlers():
         application.add_handler(handler)
     
-    # Добавляем обработчики сообщений
+    # Добавляем обработчики сообщений (русские команды с !)
     for handler in moderation.get_message_handlers():
         application.add_handler(handler)
     

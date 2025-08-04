@@ -26,6 +26,7 @@ from config import (
     GAME_MODES, MESSAGES, EMOJIS, SCHEDULED_TOURNAMENT_HOURS, BOT_COMMANDS,
     MIN_TOURNAMENT_PARTICIPANTS
 )
+from moderation import setup_moderation
 from database import DatabaseManager
 from maps import map_manager
 
@@ -2576,11 +2577,15 @@ def main():
     # Создание экземпляра бота
     bot = TournamentBot()
 
-    # Регистрация обработчиков команд
+    # ДОБАВЬТЕ ЭТУ СТРОКУ ДЛЯ ИНТЕГРАЦИИ МОДЕРАЦИИ
+    from moderation import setup_moderation
+    moderation_manager = setup_moderation(application, db)
+
+    # Регистрация обработчиков команд (ваши существующие)
     application.add_handler(CommandHandler("winner", bot.winner_command))
     application.add_handler(CommandHandler("matches", bot.matches_command))  
     application.add_handler(CommandHandler("bracket", bot.bracket_command))
-    application.add_handler(CommandHandler("help_win", bot.help_win_command))  # Новая команда
+    application.add_handler(CommandHandler("help_win", bot.help_win_command))
     application.add_handler(CommandHandler("top", bot.top_command))
     application.add_handler(CommandHandler("start", bot.start_command))
     application.add_handler(CommandHandler("profile", bot.profile_command))
@@ -2612,6 +2617,7 @@ def main():
     # Запуск бота
     print("🤖 Brawl Stars Tournament Bot запущен!")
     print("📋 Команды настроены для автодополнения")
+    print("🛡️ Система модерации активирована")
     print("✅ Все исправления внедрены:")
     print("   • Исправлена ошибка KeyError: 'current_round'")
     print("   • Добавлены fallback методы для отсутствующих функций БД")
@@ -2621,7 +2627,10 @@ def main():
     print("   • Улучшена обработка ошибок с try/except блоками")
     print("   • Добавлена функция get_rank_by_xp()")
     print("   • Исправлена опечатка InlineKeyboardButton")
+    print("   • Добавлена система модерации с командами:")
+    print("     - /mute, /ban, /kick, /warn, /moderation")
     print(f"   • Роль 'owner' зарезервирована для пользователя ID: {OWNER_ID}")
+    
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 Thread(target=run_web, daemon=True).start()

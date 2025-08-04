@@ -459,20 +459,20 @@ class DatabaseManager:
             return []
 
 def get_user_by_username(self, username: str) -> Optional[Dict]:
-    """Получение пользователя по username"""
-    try:
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
-            result = cursor.fetchone()
-            
-            if result:
-                columns = [desc[0] for desc in cursor.description]
-                return dict(zip(columns, result))
+        """Получение пользователя по username"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+                result = cursor.fetchone()
+                
+                if result:
+                    columns = [desc[0] for desc in cursor.description]
+                    return dict(zip(columns, result))
+                return None
+        except Exception as e:
+            print(f"Ошибка получения пользователя по username: {e}")
             return None
-    except Exception as e:
-        print(f"Ошибка получения пользователя по username: {e}")
-        return None
 
 def get_top_users_by_participations(self, limit=10):
         """Получение топа пользователей по участиям"""

@@ -204,10 +204,12 @@ class ModerationManager:
         
         if len(args) < 1:
             await update.message.reply_text(
-                "❌ Использование: `/mute <причина> [время]` или `!мут <причина> [время]`\n"
-                "Пример: `/mute спам 30m` или `!мут спам 30m`\n"
-                "Время: m (минуты), h (часы), d (дни)\n"
-                "Ответьте на сообщение пользователя"
+                "❌ <b>Использование команды:</b>\n"
+                "<code>/mute причина [время]</code> или <code>!мут причина [время]</code>\n\n"
+                "📝 <b>Пример:</b> <code>/mute спам 30m</code>\n"
+                "⏰ <b>Время:</b> m (минуты), h (часы), d (дни)\n"
+                "💬 Ответьте на сообщение пользователя",
+                parse_mode='HTML'
             )
             return
 
@@ -229,7 +231,7 @@ class ModerationManager:
                 duration = self.parse_time_duration(duration_str)
             else:
                 reason = reason_and_time
-                duration_str = "permanent"
+                duration_str = "навсегда"
                 duration = None
 
             # Проверяем, что не мутим администратора
@@ -274,20 +276,19 @@ class ModerationManager:
                 datetime.now() + duration if duration else None
             )
 
-            # Отправляем уведомление
-            moderator_name = clean_markdown(update.effective_user.first_name)
-            target_name = clean_markdown(target_user.first_name)
-            reason_clean = clean_markdown(reason)
+            # Отправляем уведомление с HTML форматированием
+            moderator_name = update.effective_user.first_name
+            target_name = target_user.first_name
             
             message_text = (
-                f"🔇 *Пользователь замучен*\n"
-                f"👤 Пользователь: {target_name}\n"
-                f"👮 Модератор: {moderator_name}\n"
-                f"⏱️ Время: {time_text}\n"
-                f"📝 Причина: {reason_clean}"
+                f"🔇 <b>Пользователь замучен</b>\n\n"
+                f"👤 <b>Пользователь:</b> {target_name}\n"
+                f"👮‍♂️ <b>Модератор:</b> {moderator_name}\n"
+                f"⏱️ <b>Время:</b> {time_text}\n"
+                f"📝 <b>Причина:</b> {reason}"
             )
             
-            await update.message.reply_text(message_text, parse_mode='Markdown')
+            await update.message.reply_text(message_text, parse_mode='HTML')
 
         except BadRequest as e:
             await update.message.reply_text(f"❌ Ошибка: {e}")
@@ -330,7 +331,7 @@ class ModerationManager:
                 duration = self.parse_time_duration(duration_str)
             else:
                 reason = reason_and_time or "Нарушение правил"
-                duration_str = "permanent"
+                duration_str = "навсегда"
                 duration = None
 
             # Проверяем права целевого пользователя
@@ -364,20 +365,19 @@ class ModerationManager:
                 datetime.now() + duration if duration else None
             )
 
-            # Отправляем уведомление
-            moderator_name = clean_markdown(update.effective_user.first_name)
-            target_name = clean_markdown(target_user.first_name)
-            reason_clean = clean_markdown(reason)
+            # Отправляем уведомление с HTML форматированием
+            moderator_name = update.effective_user.first_name
+            target_name = target_user.first_name
             
             message_text = (
-                f"🔨 *Пользователь забанен*\n"
-                f"👤 Пользователь: {target_name}\n"
-                f"👮 Модератор: {moderator_name}\n"
-                f"⏱️ Время: {time_text}\n"
-                f"📝 Причина: {reason_clean}"
+                f"🔨 <b>Пользователь забанен</b>\n\n"
+                f"👤 <b>Пользователь:</b> {target_name}\n"
+                f"👮‍♂️ <b>Модератор:</b> {moderator_name}\n"
+                f"⏱️ <b>Время:</b> {time_text}\n"
+                f"📝 <b>Причина:</b> {reason}"
             )
             
-            await update.message.reply_text(message_text, parse_mode='Markdown')
+            await update.message.reply_text(message_text, parse_mode='HTML')
 
         except BadRequest as e:
             await update.message.reply_text(f"❌ Ошибка: {e}")
@@ -435,19 +435,18 @@ class ModerationManager:
                 "kick", reason
             )
 
-            # Отправляем уведомление
-            moderator_name = clean_markdown(update.effective_user.first_name)
-            target_name = clean_markdown(target_user.first_name)
-            reason_clean = clean_markdown(reason)
+            # Отправляем уведомление с HTML форматированием
+            moderator_name = update.effective_user.first_name
+            target_name = target_user.first_name
             
             message_text = (
-                f"👢 *Пользователь кикнут*\n"
-                f"👤 Пользователь: {target_name}\n"
-                f"👮 Модератор: {moderator_name}\n"
-                f"📝 Причина: {reason_clean}"
+                f"👢 <b>Пользователь кикнут</b>\n\n"
+                f"👤 <b>Пользователь:</b> {target_name}\n"
+                f"👮‍♂️ <b>Модератор:</b> {moderator_name}\n"
+                f"📝 <b>Причина:</b> {reason}"
             )
             
-            await update.message.reply_text(message_text, parse_mode='Markdown')
+            await update.message.reply_text(message_text, parse_mode='HTML')
 
         except BadRequest as e:
             await update.message.reply_text(f"❌ Ошибка: {e}")
@@ -493,17 +492,19 @@ class ModerationManager:
                 update.effective_user.id, reason
             )
 
-            # Отправляем уведомление
+            # Отправляем уведомление с HTML форматированием
             moderator_name = update.effective_user.first_name
             target_name = target_user.first_name
             
-            await update.message.reply_text(
-                f"⚠️ **Предупреждение выдано**\n"
-                f"👤 Пользователь: {target_name}\n"
-                f"👮 Модератор: {moderator_name}\n"
-                f"📊 Предупреждений: {warning_count}/3\n"
-                f"📝 Причина: {reason}"
+            message_text = (
+                f"⚠️ <b>Предупреждение выдано</b>\n\n"
+                f"👤 <b>Пользователь:</b> {target_name}\n"
+                f"👮‍♂️ <b>Модератор:</b> {moderator_name}\n"
+                f"📊 <b>Предупреждений:</b> {warning_count}/3\n"
+                f"📝 <b>Причина:</b> {reason}"
             )
+            
+            await update.message.reply_text(message_text, parse_mode='HTML')
 
             # Автоматический мут на 3-м предупреждении
             if warning_count >= 3:
@@ -532,10 +533,12 @@ class ModerationManager:
                     "auto_mute", "3 предупреждения", "1d", until_date
                 )
 
-                await update.message.reply_text(
-                    f"🔇 **АВТОМАТИЧЕСКИЙ МУТ**\n"
-                    f"👤 {target_name} получил мут на 1 день за 3 предупреждения!"
+                auto_mute_text = (
+                    f"🔇 <b>АВТОМАТИЧЕСКИЙ МУТ</b>\n\n"
+                    f"👤 <b>{target_name}</b> получил мут на 1 день за 3 предупреждения!"
                 )
+                
+                await update.message.reply_text(auto_mute_text, parse_mode='HTML')
 
         except BadRequest as e:
             await update.message.reply_text(f"❌ Ошибка: {e}")
@@ -549,38 +552,50 @@ class ModerationManager:
             await update.message.reply_text("❌ У вас нет прав для использования этой команды!")
             return
 
-        help_text = """
-🛡️ **КОМАНДЫ МОДЕРАЦИИ**
+        help_text = """🛡️ <b>КОМАНДЫ МОДЕРАЦИИ</b>
 
-📌 **Доступные команды:**
+📌 <b>Доступные команды:</b>
 
-**🔇 /mute или !мут** `<причина> [время]`
-Заглушить пользователя
-Время: `10m`, `2h`, `1d` и т.д.
+🔇 <b>Заглушить пользователя:</b>
+<code>/mute причина [время]</code>
+<code>!мут причина [время]</code>
 
-**🔨 /ban или !бан** `<причина> [время]`
-Забанить пользователя (с удалением сообщений)
-Время необязательно
+🔨 <b>Забанить пользователя:</b>
+<code>/ban причина [время]</code>
+<code>!бан причина [время]</code>
 
-**👢 /kick или !кик** `<причина>`
-Кикнуть пользователя без бана
+👢 <b>Кикнуть пользователя:</b>
+<code>/kick причина</code>
+<code>!кик причина</code>
 
-**⚠️ /warn или !пред** `<причина>`
-Выдать предупреждение
-На 3-м варне - автомут на 1 день
+⚠️ <b>Выдать предупреждение:</b>
+<code>/warn причина</code>
+<code>!пред причина</code>
 
-**📋 /moderation**
-Показать эту справку
+📋 <b>Справка по командам:</b>
+<code>/moderation</code>
 
-**🔧 Как использовать:**
-1. Ответьте на сообщение нарушителя
-2. Используйте команду с причиной
-3. Для мута/бана можно указать время
+━━━━━━━━━━━━━━━━━━━━━━━━━
 
-⚡ **Права:** только модераторы и выше
-        """
+🔧 <b>Как использовать:</b>
+1️⃣ Ответьте на сообщение нарушителя
+2️⃣ Используйте команду с причиной
+3️⃣ Для мута/бана можно указать время
 
-        await update.message.reply_text(help_text)
+⏰ <b>Формат времени:</b>
+• <code>10m</code> - 10 минут
+• <code>2h</code> - 2 часа  
+• <code>1d</code> - 1 день
+
+📝 <b>Примеры:</b>
+<code>/mute спам 30m</code>
+<code>!мут реклама 1h</code>
+<code>/ban флуд 1d</code>
+<code>!пред мат</code>
+
+⚡ <b>Права:</b> только модераторы и администраторы"""
+
+        await update.message.reply_text(help_text, parse_mode='HTML')
 
     def get_command_handlers(self):
         """Получение обработчиков команд модерации (только латинские команды)"""
